@@ -31,6 +31,7 @@ export interface Offer {
   usedCount?: number;
   expiredCount?: number;
   pendingCount?: number;
+  status?: "active" | "inactive";
   createdAt?: string;
 
   updatedAt?: string;

@@ -3,6 +3,8 @@ import OfferDetailsView from "@/features/offers/components/offer-details-view";
 import PageContainer from "@/components/layout/page-container";
 import { notFound } from "next/navigation";
 
+import OfferDetailsActions from "@/features/offers/components/offer-details-actions";
+
 export const metadata = {
   title: "Dashboard: Offer Details",
 };
@@ -21,7 +23,12 @@ export default async function Page({ params }: PageProps) {
     }
 
     return (
-      <PageContainer scrollable pageTitle="Offer Details" pageDescription="View detailed information and statistics for this offer.">
+      <PageContainer 
+        scrollable 
+        pageTitle="Offer Details" 
+        pageDescription="View detailed information and statistics for this offer."
+        pageHeaderAction={<OfferDetailsActions offer={response.data} />}
+      >
         <OfferDetailsView offer={response.data} />
       </PageContainer>
     );
