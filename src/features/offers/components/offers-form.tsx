@@ -24,6 +24,7 @@ const formSchema = z.object({
   description: z.string().optional(),
   categoryId: z.string().min(1, "Category is required"),
   images: z.array(z.string()).default([]),
+  whereToRedeem: z.enum(["online", "offline"]).default("offline"),
   redeemCode: z.string().optional(),
   redeemedExpiry: z.coerce.number().min(0).default(0),
   howToRedeemSteps: z.string().optional(), // Maps to howToClaim in UI
@@ -33,6 +34,14 @@ const formSchema = z.object({
   maxPrice: z.coerce.number().min(0).default(0),
   discountPercentage: z.coerce.number().min(0).max(100).default(0),
   rewardPoints: z.coerce.number().min(0).default(0),
+}).refine((data) => {
+  if (data.whereToRedeem === "online" && (!data.redeemCode || data.redeemCode.trim() === "")) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Redeem code is required when redemption is online",
+  path: ["redeemCode"],
 });
 
 interface OffersFormProps {
@@ -77,6 +86,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
           howToRedeemSteps: initialData.howToRedeemSteps?.join("\n") || "",
           termsCondition: initialData.termsCondition?.join("\n") || "",
           offerType: initialData.offerType || "upto",
+          whereToRedeem: initialData.whereToRedeem || "offline",
           minPrice: initialData.minPrice || 0,
           maxPrice: initialData.maxPrice || 0,
           discountPercentage: initialData.discountPercentage || 0,
@@ -92,6 +102,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
           howToRedeemSteps: "",
           termsCondition: "",
           offerType: "upto",
+          whereToRedeem: "offline",
           minPrice: 0,
           maxPrice: 0,
           discountPercentage: 0,
@@ -263,17 +274,58 @@ export function OffersForm({ initialData }: OffersFormProps) {
               <div className="grid gap-8 md:grid-cols-2">
                 {/* Left Side: Redemption Details */}
                 <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="whereToRedeem"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Where to Redeem</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select where to redeem" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="online">Online</SelectItem>
+                            <SelectItem value="offline">Offline</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-2 gap-4 items-start">
                     <FormField
                       control={form.control}
                       name="redeemCode"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Redeem Code</FormLabel>
+                        <FormItem className={form.watch("whereToRedeem") === "offline" ? "opacity-60" : ""}>
+                          <FormLabel>
+                            Redeem Code
+                            {form.watch("whereToRedeem") === "online" && <span className="text-destructive ml-1">*</span>}
+                          </FormLabel>
                           <FormControl>
-                            <Input placeholder="SAVE20" {...field} />
+                            {form.watch("whereToRedeem") === "offline" ? (
+                              <div className="h-10 px-3 py-2 rounded-md border border-input bg-muted/50 text-xs flex items-center text-muted-foreground italic">
+                                Automatically generated unique code
+                              </div>
+                            ) : (
+                              <Input 
+                                placeholder="e.g. SAVE20" 
+                                {...field} 
+                                onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                                className="uppercase font-mono"
+                              />
+                            )}
                           </FormControl>
                           <FormMessage />
+                          {form.watch("whereToRedeem") === "offline" && (
+                            <FormDescription className="text-[10px]">
+                              Unique 8-char codes will be created for each customer.
+                            </FormDescription>
+                          )}
                         </FormItem>
                       )}
                     />

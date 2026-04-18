@@ -23,10 +23,16 @@ export interface Offer {
   isTrending: boolean;
   isFeatured: boolean;
   offerType: "upto" | "discount";
+  whereToRedeem?: "online" | "offline";
   minPrice: number;
   maxPrice: number;
   discountPercentage: number;
+  redemptionCount?: number;
+  usedCount?: number;
+  expiredCount?: number;
+  pendingCount?: number;
   createdAt?: string;
+
   updatedAt?: string;
   deletedAt?: string | null;
 }

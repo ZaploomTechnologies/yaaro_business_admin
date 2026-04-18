@@ -157,23 +157,34 @@ export function ApplyCodeForm() {
 
   return (
     <div className="space-y-6 max-w-lg">
+      <div className="bg-muted/50 border rounded-lg p-4 text-sm text-muted-foreground flex gap-3">
+        <AlertCircle className="size-5 text-primary shrink-0" />
+        <p>
+          Enter the unique code shown on the customer's mobile app to redeem their offer. 
+          Online-only offers cannot be redeemed here.
+        </p>
+      </div>
+
       <form onSubmit={handleSubmit} className="flex gap-2">
-        <Input
-          placeholder="Enter redeem code (e.g. GET25 or aB3xYz1Q)"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          disabled={loading}
-          className="font-mono"
-        />
-        <Button type="submit" disabled={loading || !code.trim()}>
+        <div className="relative flex-1">
+          <Input
+            placeholder="Enter unique code (e.g. AB3XYZ1Q)"
+            value={code}
+            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            disabled={loading}
+            className="font-mono uppercase h-11 pr-10"
+          />
+        </div>
+
+        <Button type="submit" className="h-11 px-6 shadow-sm" disabled={loading || !code.trim()}>
           {loading ? "Checking..." : "Apply"}
         </Button>
       </form>
 
       {result && (
-        <div className="space-y-3">
+        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
           <ResultCard result={result} />
-          <Button variant="outline" size="sm" onClick={handleReset} className="gap-1.5 w-full">
+          <Button variant="outline" size="sm" onClick={handleReset} className="gap-1.5 w-full h-10">
             <RotateCcw className="size-3.5" />
             Apply Another Code
           </Button>

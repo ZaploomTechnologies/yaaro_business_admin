@@ -134,10 +134,16 @@ function ActionCell({ offer }: { offer: Offer }) {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
+            <Link href={`/dashboard/offers/${id}/details`}>
+              <MoreVertical className="mr-2 h-4 w-4" /> Details
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
             <Link href={`/dashboard/offers/${id}`}>
               <Edit className="mr-2 h-4 w-4" /> Edit
             </Link>
           </DropdownMenuItem>
+
           <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => setOpen(true)}>
             <Trash className="mr-2 h-4 w-4" /> Delete
           </DropdownMenuItem>
