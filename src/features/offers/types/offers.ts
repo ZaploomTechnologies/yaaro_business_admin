@@ -16,9 +16,8 @@ export interface Offer {
   redeemCode?: string;
   rewardPoints: number;
   redeemedExpiry: number;
-  whatYouGet?: string[];
-  howToRedeemSteps?: string[];
-  termsCondition?: string[];
+  howToRedeemSteps?: string;
+  termsCondition?: string;
   termsConditionUrl?: string;
   isTrending: boolean;
   isFeatured: boolean;

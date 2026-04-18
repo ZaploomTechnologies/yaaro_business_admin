@@ -12,6 +12,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import dynamic from "next/dynamic";
+
+const CKEditorComponent = dynamic(
+  () => import("@/components/common/editor/CKEditor").then((mod) => mod.CKEditorComponent),
+  { 
+    ssr: false,
+    loading: () => <div className="h-[200px] w-full animate-pulse bg-muted rounded-md" />
+  }
+);
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { MultipleImageUploader } from "@/components/ui/multiple-image-uploader";
@@ -83,8 +92,12 @@ export function OffersForm({ initialData }: OffersFormProps) {
           images: initialData.images || [],
           redeemCode: initialData.redeemCode || "",
           redeemedExpiry: initialData.redeemedExpiry || 0,
-          howToRedeemSteps: initialData.howToRedeemSteps?.join("\n") || "",
-          termsCondition: initialData.termsCondition?.join("\n") || "",
+          howToRedeemSteps: Array.isArray(initialData.howToRedeemSteps as any) 
+            ? (initialData.howToRedeemSteps as any).join("\n") 
+            : (initialData.howToRedeemSteps || ""),
+          termsCondition: Array.isArray(initialData.termsCondition as any) 
+            ? (initialData.termsCondition as any).join("\n") 
+            : (initialData.termsCondition || ""),
           offerType: initialData.offerType || "upto",
           whereToRedeem: initialData.whereToRedeem || "offline",
           minPrice: initialData.minPrice || 0,
@@ -142,8 +155,8 @@ export function OffersForm({ initialData }: OffersFormProps) {
       // Transform newline-separated strings back to arrays
       const payload = {
         ...values,
-        howToRedeemSteps: values.howToRedeemSteps?.split("\n").filter(line => line.trim() !== "") || [],
-        termsCondition: values.termsCondition?.split("\n").filter(line => line.trim() !== "") || [],
+        howToRedeemSteps: values.howToRedeemSteps || "",
+        termsCondition: values.termsCondition || "",
       };
 
       if (isEdit && (initialData?._id || initialData?.id)) {
@@ -352,10 +365,10 @@ export function OffersForm({ initialData }: OffersFormProps) {
                       <FormItem>
                         <FormLabel>How To Claim</FormLabel>
                         <FormControl>
-                          <Textarea 
-                            placeholder="One step per line" 
-                            className="min-h-[100px]" 
-                            {...field} 
+                          <CKEditorComponent 
+                            value={field.value || ""} 
+                            onChange={field.onChange}
+                            placeholder="Describe how to claim this offer..."
                           />
                         </FormControl>
                         <FormMessage />
@@ -370,10 +383,10 @@ export function OffersForm({ initialData }: OffersFormProps) {
                       <FormItem>
                         <FormLabel>Terms & Conditions</FormLabel>
                         <FormControl>
-                          <Textarea 
-                            placeholder="One term per line" 
-                            className="min-h-[100px]" 
-                            {...field} 
+                          <CKEditorComponent 
+                            value={field.value || ""} 
+                            onChange={field.onChange}
+                            placeholder="List the terms and conditions..."
                           />
                         </FormControl>
                         <FormMessage />

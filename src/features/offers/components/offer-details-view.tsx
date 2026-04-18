@@ -128,36 +128,30 @@ export default function OfferDetailsView({ offer }: OfferDetailsViewProps) {
               <CardTitle>Content & Guidelines</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {offer.whatYouGet && offer.whatYouGet.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                    <Tag className="h-4 w-4" /> What You Get
-                  </h4>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-2">
-                    {offer.whatYouGet.map((item, i) => <li key={i}>{item}</li>)}
-                  </ul>
-                </div>
-              )}
-
-              {offer.howToRedeemSteps && offer.howToRedeemSteps.length > 0 && (
+              {offer.howToRedeemSteps && (
                 <div>
                   <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                     <Ticket className="h-4 w-4" /> Redemption Steps
                   </h4>
-                  <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground ml-2">
-                    {offer.howToRedeemSteps.map((step, i) => <li key={i}>{step}</li>)}
-                  </ol>
+                  <div 
+                    className="text-sm text-muted-foreground ml-2 prose prose-sm max-w-none 
+                    [&>ol]:list-decimal [&>ol]:list-inside [&>ol]:space-y-1
+                    [&>ul]:list-disc [&>ul]:list-inside [&>ul]:space-y-1"
+                    dangerouslySetInnerHTML={{ __html: offer.howToRedeemSteps }}
+                  />
                 </div>
               )}
 
-              {offer.termsCondition && offer.termsCondition.length > 0 && (
+              {offer.termsCondition && (
                 <div>
                   <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                     <Users className="h-4 w-4 text-destructive" /> Terms & Conditions
                   </h4>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-2">
-                    {offer.termsCondition.map((term, i) => <li key={i}>{term}</li>)}
-                  </ul>
+                  <div 
+                    className="text-sm text-muted-foreground ml-2 prose prose-sm max-w-none
+                    [&>ul]:list-disc [&>ul]:list-inside [&>ul]:space-y-1"
+                    dangerouslySetInnerHTML={{ __html: offer.termsCondition }}
+                  />
                 </div>
               )}
             </CardContent>
