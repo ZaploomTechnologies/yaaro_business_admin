@@ -54,7 +54,9 @@ function ResultCard({ result }: { result: ApplyCodeResult }) {
             <AlertCircle className="size-5" />
             <CardTitle className="text-base">Already Redeemed</CardTitle>
           </div>
-          <CardDescription>This code was already used at a previous visit.</CardDescription>
+          <CardDescription>
+            {result.message || "This code was already used at a previous visit."}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="grid grid-cols-2 gap-x-4 gap-y-2">
@@ -94,6 +96,22 @@ function ResultCard({ result }: { result: ApplyCodeResult }) {
     );
   }
 
+  if (result.status === "claim_required" || result.status === "user_required") {
+    return (
+      <Card className="border-blue-400 bg-blue-50 dark:bg-blue-950/20">
+        <CardHeader className="pb-2">
+          <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+            <AlertCircle className="size-5" />
+            <CardTitle className="text-base">Action Required</CardTitle>
+          </div>
+          <CardDescription className="text-blue-600 dark:text-blue-400">
+            {result.message}
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
   return (
     <Card className="border-red-400 bg-red-50 dark:bg-red-950/20">
       <CardHeader className="pb-2">
@@ -101,7 +119,7 @@ function ResultCard({ result }: { result: ApplyCodeResult }) {
           <XCircle className="size-5" />
           <CardTitle className="text-base">Invalid Code</CardTitle>
         </div>
-        <CardDescription>No matching redeem code was found.</CardDescription>
+        <CardDescription>{result.message || "No matching redeem code was found."}</CardDescription>
       </CardHeader>
     </Card>
   );
@@ -141,7 +159,7 @@ export function ApplyCodeForm() {
     <div className="space-y-6 max-w-lg">
       <form onSubmit={handleSubmit} className="flex gap-2">
         <Input
-          placeholder="Enter redeem code (e.g. aB3xYz1Q)"
+          placeholder="Enter redeem code (e.g. GET25 or aB3xYz1Q)"
           value={code}
           onChange={(e) => setCode(e.target.value)}
           disabled={loading}
@@ -155,7 +173,7 @@ export function ApplyCodeForm() {
       {result && (
         <div className="space-y-3">
           <ResultCard result={result} />
-          <Button variant="outline" size="sm" onClick={handleReset} className="gap-1.5">
+          <Button variant="outline" size="sm" onClick={handleReset} className="gap-1.5 w-full">
             <RotateCcw className="size-3.5" />
             Apply Another Code
           </Button>

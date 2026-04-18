@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/api-client";
 
-export type RedeemStatus = "redeemed" | "already_used" | "expired" | "not_found";
+export type RedeemStatus = "redeemed" | "already_used" | "expired" | "not_found" | "claim_required" | "user_required";
 
 export interface RedeemUser {
   _id: string;
@@ -36,7 +36,9 @@ export interface ApplyCodeResult {
 
 export const applyCodeApi = {
   apply: async (redeemCode: string): Promise<{ success: boolean; data: ApplyCodeResult; message?: string }> => {
-    const response = await apiClient.post<ApplyCodeResult>("/business/apply-code", { redeemCode });
+    const response = await apiClient.post<ApplyCodeResult>("/business/apply-code", {
+      redeemCode,
+    });
     return response as { success: boolean; data: ApplyCodeResult; message?: string };
   },
 };
