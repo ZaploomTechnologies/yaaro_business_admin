@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
 
@@ -32,17 +32,17 @@ const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),
   description: z.string().optional(),
   categoryId: z.string().min(1, "Category is required"),
-  images: z.array(z.string()).default([]),
-  whereToRedeem: z.enum(["online", "offline"]).default("offline"),
+  images: z.array(z.string()),
+  whereToRedeem: z.enum(["online", "offline"]),
   redeemCode: z.string().optional(),
-  redeemedExpiry: z.coerce.number().min(0).default(0),
+  redeemedExpiry: z.coerce.number().min(0),
   howToRedeemSteps: z.string().optional(), // Maps to howToClaim in UI
   termsCondition: z.string().optional(),
   offerType: z.enum(["upto", "discount"]),
-  minPrice: z.coerce.number().min(0).default(0),
-  maxPrice: z.coerce.number().min(0).default(0),
-  discountPercentage: z.coerce.number().min(0).max(100).default(0),
-  rewardPoints: z.coerce.number().min(0).default(0),
+  minPrice: z.coerce.number().min(0),
+  maxPrice: z.coerce.number().min(0),
+  discountPercentage: z.coerce.number().min(0).max(100),
+  rewardPoints: z.coerce.number().min(0),
 }).refine((data) => {
   if (data.whereToRedeem === "online" && (!data.redeemCode || data.redeemCode.trim() === "")) {
     return false;
@@ -56,6 +56,8 @@ const formSchema = z.object({
 interface OffersFormProps {
   initialData?: Offer | null;
 }
+
+type OfferFormValues = z.infer<typeof formSchema>;
 
 export function OffersForm({ initialData }: OffersFormProps) {
   const router = useRouter();
@@ -80,8 +82,8 @@ export function OffersForm({ initialData }: OffersFormProps) {
     fetchCategories();
   }, []);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<OfferFormValues>({
+    resolver: zodResolver(formSchema) as Resolver<OfferFormValues>,
     defaultValues: initialData
       ? {
           title: initialData.title,
@@ -149,7 +151,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
     form.setValue("rewardPoints", rewardPoints);
   }, [watchedOfferType, watchedMinPrice, watchedMaxPrice, watchedDiscount, form]);
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: OfferFormValues) {
     setLoading(true);
     try {
       // Transform newline-separated strings back to arrays

@@ -2,8 +2,8 @@
 
 import { setValueToCookie } from "@/server/server-actions";
 
-import { setClientCookie } from "../cookie.client";
-import { setLocalStorageValue } from "../local-storage.client";
+import { setClientCookie } from "@/lib/cookie.client";
+import { setLocalStorageValue } from "@/lib/local-storage.client";
 import { PREFERENCE_PERSISTENCE, type PreferenceKey } from "./preferences-config";
 
 export async function persistPreference(key: PreferenceKey, value: string) {

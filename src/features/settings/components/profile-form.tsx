@@ -19,23 +19,27 @@ import { Separator } from "@/components/ui/separator";
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   website: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
-  logo: z.string().optional().default(""),
-  about: z.string().optional().default(""),
-  locations: z.array(z.object({
-    address: z.string().optional().default(""),
-    googleMapLink: z.string().url("Must be a valid URL").or(z.literal("")).optional().default(""),
-  })).optional().default([]),
-  phones: z.array(z.string().optional().default("")).optional().default([]),
+  logo: z.string(),
+  about: z.string(),
+  locations: z.array(
+    z.object({
+      address: z.string(),
+      googleMapLink: z.string().url("Must be a valid URL").or(z.literal("")),
+    })
+  ),
+  phones: z.array(z.object({ value: z.string() })),
 });
 
+type ProfileFormValues = z.infer<typeof profileSchema>;
+
 interface ProfileFormProps {
-  initialData: z.infer<typeof profileSchema>;
+  initialData: ProfileFormValues;
 }
 
 export function ProfileForm({ initialData }: ProfileFormProps) {
   const [loading, setLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof profileSchema>>({
+  const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: initialData,
   });
@@ -50,10 +54,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     name: "phones",
   });
 
-  async function onSubmit(values: z.infer<typeof profileSchema>) {
+  async function onSubmit(values: ProfileFormValues) {
     setLoading(true);
     try {
-      await settingsApi.updateProfile(values);
+      await settingsApi.updateProfile({
+        ...values,
+        phones: values.phones.map((p) => p.value),
+      });
       toast.success("Profile updated successfully");
     } catch (error: any) {
       toast.error(error.message || "Failed to update profile");
@@ -169,7 +176,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => appendPhone("")}
+                  onClick={() => appendPhone({ value: "" })}
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Phone
@@ -181,7 +188,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                   <FormField
                     key={field.id}
                     control={form.control}
-                    name={`phones.${index}`}
+                    name={`phones.${index}.value`}
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>

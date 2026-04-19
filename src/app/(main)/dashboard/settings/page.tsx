@@ -9,17 +9,39 @@ export const metadata = {
   title: "Dashboard: Settings",
 };
 
+type ProfilePayload = {
+  name?: string;
+  website?: string;
+  logo?: string;
+  username?: string;
+  about?: string;
+  locations?: { address?: string; googleMapLink?: string }[];
+  phones?: string[];
+};
+
 export default async function SettingsPage() {
-  // We can fetch the initial profile data on the server
-  let profileData = { name: "", website: "", logo: "", username: "" };
+  let profileData: ProfilePayload = {};
   try {
     const res = await settingsApiServer.getProfile();
-    if (res.success) {
-      profileData = res.data;
+    if (res.success && res.data) {
+      profileData = res.data as ProfilePayload;
     }
   } catch (error) {
     console.error("Failed to fetch profile data on server:", error);
   }
+
+  const profileInitial = {
+    name: profileData.name ?? "",
+    website: profileData.website ?? "",
+    logo: profileData.logo ?? "",
+    about: profileData.about ?? "",
+    locations:
+      profileData.locations?.map((loc) => ({
+        address: loc.address ?? "",
+        googleMapLink: loc.googleMapLink ?? "",
+      })) ?? [],
+    phones: profileData.phones?.map((p) => ({ value: p ?? "" })) ?? [],
+  };
 
   return (
     <PageContainer
@@ -36,19 +58,13 @@ export default async function SettingsPage() {
           
           <TabsContent value="profile">
             <Suspense fallback={<div>Loading profile...</div>}>
-              <ProfileForm 
-                initialData={{
-                  name: profileData.name || "",
-                  website: profileData.website || "",
-                  logo: profileData.logo || "",
-                }} 
-              />
+              <ProfileForm initialData={profileInitial} />
             </Suspense>
           </TabsContent>
           
           <TabsContent value="login">
             <Suspense fallback={<div>Loading login settings...</div>}>
-              <LoginSettingsForm initialUsername={profileData.username || ""} />
+              <LoginSettingsForm initialUsername={profileData.username ?? ""} />
             </Suspense>
           </TabsContent>
         </Tabs>

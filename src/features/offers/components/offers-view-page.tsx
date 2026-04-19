@@ -22,7 +22,11 @@ export default async function OffersViewPage({ offerId }: OffersViewPageProps) {
     <PageContainer
       scrollable
       pageTitle={offerId === "new" ? "Create Offer" : "Edit Offer"}
-      pageDescription={offerId === "new" ? "Add a new offer to your brand." : `Edit the details of ${initialData?.name || "the offer"}.`}
+      pageDescription={
+        offerId === "new"
+          ? "Add a new offer to your brand."
+          : `Edit the details of ${initialData?.title || "the offer"}.`
+      }
     >
       <OffersForm initialData={initialData} />
     </PageContainer>
