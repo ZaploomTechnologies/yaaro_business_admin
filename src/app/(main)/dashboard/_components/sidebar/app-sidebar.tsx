@@ -1,7 +1,7 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { Command } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import {
@@ -37,14 +37,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
+
             <SidebarMenuButton size="lg" asChild>
               <Link prefetch={false} href="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                   <Command className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold text-base">{APP_CONFIG.name}</span>
-                  <span className="truncate text-xs">Business Admin</span>
+                <div className="flex flex-col items-start gap-1">
+                  <div className="flex items-center">
+                    <Image src="/Yaaro-Icon.png" alt="Yaaro Icon" width={28} height={28} className="object-contain" />
+                    <Image src="/Yaaro-Logo.png" alt="Yaaro Logo" width={70} height={28} className="object-contain" />
+                  </div>
+                  <span className="text-xs ps-2 font-medium text-muted-foreground">Business Admin</span>
                 </div>
               </Link>
             </SidebarMenuButton>

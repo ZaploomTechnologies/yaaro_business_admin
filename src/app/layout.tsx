@@ -15,6 +15,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Yaaro Business Admin",
   description: "Manage your brand's offers and rewards.",
+  icons:{
+    icon: "/Yaaro-Icon.png",
+  }
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

@@ -21,7 +21,7 @@ export interface Offer {
   termsConditionUrl?: string;
   isTrending: boolean;
   isFeatured: boolean;
-  offerType: "upto" | "discount";
+  offerType: "upto" | "discount" | "flat";
   whereToRedeem?: "online" | "offline";
   minPrice: number;
   maxPrice: number;

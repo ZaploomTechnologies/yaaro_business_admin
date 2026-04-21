@@ -38,7 +38,7 @@ const formSchema = z.object({
   redeemedExpiry: z.coerce.number().min(0),
   howToRedeemSteps: z.string().optional(), // Maps to howToClaim in UI
   termsCondition: z.string().optional(),
-  offerType: z.enum(["upto", "discount"]),
+  offerType: z.enum(["upto", "discount", "flat"]),
   minPrice: z.coerce.number().min(0),
   maxPrice: z.coerce.number().min(0),
   discountPercentage: z.coerce.number().min(0).max(100),
@@ -138,7 +138,9 @@ export function OffersForm({ initialData }: OffersFormProps) {
     const pointsPerRs = APP_CONFIG.POINTS_PER_RS || 10;
     
     let rewardPoints = 0;
-    if (watchedOfferType === "discount") {
+    if (watchedOfferType === "flat") {
+      rewardPoints = Math.round(max * pointsPerRs);
+    } else if (watchedOfferType === "discount") {
       const anchorPrice = min + 0.4 * (max - min);
       const anchorDiscount = anchorPrice * (disc / 100);
       rewardPoints = Math.round(anchorDiscount * pointsPerRs);
@@ -412,9 +414,10 @@ export function OffersForm({ initialData }: OffersFormProps) {
                                 <SelectValue placeholder="Select offer type" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
+                            <SelectContent position="popper">
                               <SelectItem value="upto">Upto</SelectItem>
                               <SelectItem value="discount">Discount</SelectItem>
+                              <SelectItem value="flat">Flat</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -442,7 +445,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
                          control={form.control}
                          name="maxPrice"
                          render={({ field }) => (
-                           <FormItem className={watchedOfferType === "upto" ? "col-span-2" : ""}>
+                           <FormItem className={watchedOfferType !== "discount" ? "col-span-2" : ""}>
                              <FormLabel>Max Price (₹)</FormLabel>
                              <FormControl>
                                <Input type="number" placeholder="0" className="bg-background" {...field} />
@@ -453,21 +456,23 @@ export function OffersForm({ initialData }: OffersFormProps) {
                        />
                     </div>
 
-                    <FormField
-                      control={form.control}
-                      name="discountPercentage"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Discount (%)</FormLabel>
-                          <FormControl>
-                            <Input type="number" placeholder="0" className="bg-background" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {watchedOfferType !== "flat" && (
+                      <FormField
+                        control={form.control}
+                        name="discountPercentage"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Discount (%)</FormLabel>
+                            <FormControl>
+                              <Input type="number" placeholder="0" className="bg-background" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
 
-                    <div className="mt-8 rounded-lg bg-primary/10 p-4 border border-primary/20">
+                    {/* <div className="mt-8 rounded-lg bg-primary/10 p-4 border border-primary/20">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium text-primary/80">Calculated Reward</p>
@@ -483,7 +488,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
                       <p className="mt-2 text-[10px] text-muted-foreground leading-relaxed">
                         * Based on {watchedOfferType === "discount" ? "anchor price formula" : "max price"} and {APP_CONFIG.POINTS_PER_RS} pts/₹ conversion.
                       </p>
-                    </div>
+                    </div> */}
                   </div>
                   
 

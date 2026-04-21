@@ -145,7 +145,6 @@ export function MultipleImageUploader({
                                     {currentCrop.fileName}
                                 </p>
                             </div>
-                            <p className='text-xs text-muted-foreground'>16 : 9 ratio</p>
                         </div>
 
                         <div className='relative h-72 w-full overflow-hidden rounded-lg bg-black'>
@@ -227,7 +226,7 @@ export function MultipleImageUploader({
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploading}
                             className={cn(
-                                'flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-muted-foreground/25 transition-all hover:border-primary/50 hover:bg-muted/50 active:scale-95',
+                                'flex w-40 aspect-video flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-muted-foreground/25 transition-all hover:border-primary/50 hover:bg-muted/50 active:scale-95',
                                 uploading && 'cursor-not-allowed opacity-50'
                             )}>
                             {uploading ? (
@@ -245,7 +244,7 @@ export function MultipleImageUploader({
 
                     {value.map((url, index) => (
                         <div key={`${url}-${index}`} className='group relative'>
-                            <div className='h-24 w-24 overflow-hidden rounded-lg border bg-muted shadow-sm transition-transform hover:scale-[1.02]'>
+                            <div className='w-40 aspect-video overflow-hidden rounded-lg border bg-muted shadow-sm transition-transform hover:scale-[1.02]'>
                                 <img
                                     src={getImageUrl(url)}
                                     alt={`Preview ${index + 1}`}

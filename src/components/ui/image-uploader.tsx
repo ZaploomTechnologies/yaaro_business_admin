@@ -139,7 +139,6 @@ export function ImageUploader({
                     <div className='flex w-[90vw] max-w-md flex-col gap-4 rounded-xl bg-background p-6 shadow-xl'>
                         <div className='flex items-center justify-between'>
                             <h2 className='text-base font-semibold'>Crop Image</h2>
-                            <p className='text-xs text-muted-foreground'>Output: 124 × 124 px</p>
                         </div>
 
                         <div className='relative h-72 w-full overflow-hidden rounded-lg bg-black'>

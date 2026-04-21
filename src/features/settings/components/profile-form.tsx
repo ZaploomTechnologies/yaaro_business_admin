@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import * as z from "zod";
@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { settingsApi } from "../api/settings-api";
 import { Separator } from "@/components/ui/separator";
+import { useAuthStore } from "@/stores/auth-store";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -38,11 +39,34 @@ interface ProfileFormProps {
 
 export function ProfileForm({ initialData }: ProfileFormProps) {
   const [loading, setLoading] = useState(false);
+  const { user } = useAuthStore();
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: initialData,
+    defaultValues: {
+      ...initialData,
+      logo: initialData.logo || user?.logo || "",
+    },
   });
+
+  useEffect(() => {
+    settingsApi.getProfile().then((res) => {
+      if (res.success && res.data) {
+        const data = res.data as any;
+        form.reset({
+          name: data.name || initialData.name,
+          website: data.website || initialData.website,
+          logo: data.logo || user?.logo || initialData.logo,
+          about: data.about || initialData.about,
+          locations: data.locations?.map((loc: any) => ({
+            address: loc.address ?? "",
+            googleMapLink: loc.googleMapLink ?? "",
+          })) ?? initialData.locations,
+          phones: data.phones?.map((p: string) => ({ value: p ?? "" })) ?? initialData.phones,
+        });
+      }
+    }).catch(() => {});
+  }, []);
 
   const { fields: locationFields, append: appendLocation, remove: removeLocation } = useFieldArray({
     control: form.control,
