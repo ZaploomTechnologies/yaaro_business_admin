@@ -128,19 +128,6 @@ export default function OfferDetailsView({ offer }: OfferDetailsViewProps) {
               <CardTitle>Content & Guidelines</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {offer.howToRedeemSteps && (
-                <div>
-                  <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                    <Ticket className="h-4 w-4" /> Redemption Steps
-                  </h4>
-                  <div 
-                    className="text-sm text-muted-foreground ml-2 prose prose-sm max-w-none 
-                    [&>ol]:list-decimal [&>ol]:list-inside [&>ol]:space-y-1
-                    [&>ul]:list-disc [&>ul]:list-inside [&>ul]:space-y-1"
-                    dangerouslySetInnerHTML={{ __html: offer.howToRedeemSteps }}
-                  />
-                </div>
-              )}
 
               {offer.termsCondition && (
                 <div>

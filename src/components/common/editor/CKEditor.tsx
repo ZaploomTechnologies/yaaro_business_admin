@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { getClientCookie } from '@/lib/cookie.client';
@@ -26,16 +26,31 @@ export function CKEditorComponent({
   editorKey,
 }: CKEditorComponentProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+  const editorInstance = useRef<any>(null);
   const initialData = useRef<string | null>(null);
   
   // Initialize initialData once
   if (initialData.current === null) initialData.current = value;
+
+  // Sync programmatic changes from parent
+  useEffect(() => {
+    if (editorInstance.current) {
+      const currentData = editorInstance.current.getData();
+      // Only set data if it's different to avoid cursor jumping
+      if (value !== currentData) {
+        editorInstance.current.setData(value);
+      }
+    }
+  }, [value]);
 
   return (
     <div className="ckeditor-wrapper" key={editorKey}>
       <CKEditor
         editor={ClassicEditor as any}
         data={initialData.current}
+        onReady={(editor) => {
+          editorInstance.current = editor;
+        }}
         config={{
           placeholder,
           toolbar: {

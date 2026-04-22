@@ -8,6 +8,8 @@ import * as z from "zod";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -23,9 +25,13 @@ const CKEditorComponent = dynamic(
 );
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Plus, X } from "lucide-react";
 import { MultipleImageUploader } from "@/components/ui/multiple-image-uploader";
 import { APP_CONFIG } from "@/config/app-config";
 import { offersApi } from "../api/offers-api";
+import { COMMON_TERMS } from "../constants/terms-constants";
 import type { Offer, Category } from "../types/offers";
 
 const formSchema = z.object({
@@ -36,7 +42,6 @@ const formSchema = z.object({
   whereToRedeem: z.enum(["online", "offline"]),
   redeemCode: z.string().optional(),
   redeemedExpiry: z.coerce.number().min(0),
-  howToRedeemSteps: z.string().optional(), // Maps to howToClaim in UI
   termsCondition: z.string().optional(),
   offerType: z.enum(["upto", "discount", "flat"]),
   minPrice: z.coerce.number().min(0),
@@ -66,22 +71,6 @@ export function OffersForm({ initialData }: OffersFormProps) {
   const [loadingCategories, setLoadingCategories] = useState(true);
   const isEdit = !!initialData;
 
-  useEffect(() => {
-    async function fetchCategories() {
-      try {
-        const res = await offersApi.getCategories();
-        if (res.success) {
-          setCategories(res.data);
-        }
-      } catch (error) {
-        toast.error("Failed to load categories");
-      } finally {
-        setLoadingCategories(false);
-      }
-    }
-    fetchCategories();
-  }, []);
-
   const form = useForm<OfferFormValues>({
     resolver: zodResolver(formSchema) as Resolver<OfferFormValues>,
     defaultValues: initialData
@@ -94,9 +83,6 @@ export function OffersForm({ initialData }: OffersFormProps) {
           images: initialData.images || [],
           redeemCode: initialData.redeemCode || "",
           redeemedExpiry: initialData.redeemedExpiry || 0,
-          howToRedeemSteps: Array.isArray(initialData.howToRedeemSteps as any) 
-            ? (initialData.howToRedeemSteps as any).join("\n") 
-            : (initialData.howToRedeemSteps || ""),
           termsCondition: Array.isArray(initialData.termsCondition as any) 
             ? (initialData.termsCondition as any).join("\n") 
             : (initialData.termsCondition || ""),
@@ -114,7 +100,6 @@ export function OffersForm({ initialData }: OffersFormProps) {
           images: [],
           redeemCode: "",
           redeemedExpiry: 0,
-          howToRedeemSteps: "",
           termsCondition: "",
           offerType: "upto",
           whereToRedeem: "offline",
@@ -124,6 +109,73 @@ export function OffersForm({ initialData }: OffersFormProps) {
           rewardPoints: 0,
         },
   });
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const res = await offersApi.getCategories();
+        if (res.success) {
+          setCategories(res.data);
+        }
+      } catch (error) {
+        toast.error("Failed to load categories");
+      } finally {
+        setCategories([]); // Fallback
+        setLoadingCategories(false);
+      }
+    }
+    fetchCategories();
+  }, []);
+
+  // Smart Terms Selector State
+  const [selectedTermIds, setSelectedTermIds] = useState<string[]>(
+    isEdit ? [] : COMMON_TERMS.filter(t => t.defaultChecked).map(t => t.id)
+  );
+  const [customTerms, setCustomTerms] = useState<string[]>([]);
+  const [customTermInput, setCustomTermInput] = useState("");
+  const [isInitialSyncDone, setIsInitialSyncDone] = useState(false);
+
+  // Sync terms to editor
+  useEffect(() => {
+    // If editing, don't overwrite existing terms initially
+    if (isEdit && !isInitialSyncDone) {
+      setIsInitialSyncDone(true);
+      return;
+    }
+
+    const selectedPredefined = COMMON_TERMS
+      .filter((t) => selectedTermIds.includes(t.id))
+      .map((t) => t.label);
+
+    const allTerms = [...selectedPredefined, ...customTerms];
+
+    if (allTerms.length > 0) {
+      const html = `<ul>${allTerms.map((t) => `<li>${t}</li>`).join("")}</ul>`;
+      form.setValue("termsCondition", html);
+    } else if (!isEdit || isInitialSyncDone) {
+      // Only clear if we've already started syncing or it's a new offer
+      form.setValue("termsCondition", "");
+    }
+  }, [selectedTermIds, customTerms, form, isEdit, isInitialSyncDone]);
+
+  const handleTermToggle = (id: string) => {
+    setSelectedTermIds((prev) =>
+      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
+    );
+  };
+
+  const addCustomTerm = () => {
+    if (customTermInput.trim()) {
+      setCustomTerms((prev) => [...prev, customTermInput.trim()]);
+      setCustomTermInput("");
+    }
+  };
+
+  const removeCustomTerm = (index: number) => {
+    setCustomTerms((prev) => prev.filter((_, i) => i !== index));
+  };
+
+
 
   // Watch fields for automatic calculation
   const watchedOfferType = form.watch("offerType");
@@ -159,7 +211,6 @@ export function OffersForm({ initialData }: OffersFormProps) {
       // Transform newline-separated strings back to arrays
       const payload = {
         ...values,
-        howToRedeemSteps: values.howToRedeemSteps || "",
         termsCondition: values.termsCondition || "",
       };
 
@@ -362,35 +413,91 @@ export function OffersForm({ initialData }: OffersFormProps) {
                     />
                   </div>
 
-                  <FormField
-                    control={form.control}
-                    name="howToRedeemSteps"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>How To Claim</FormLabel>
-                        <FormControl>
-                          <CKEditorComponent 
-                            value={field.value || ""} 
-                            onChange={field.onChange}
-                            placeholder="Describe how to claim this offer..."
+
+                  {/* --- Smart Terms Selector UI --- */}
+                  <div className="space-y-4 rounded-lg border bg-background p-4 shadow-sm">
+                    <div className="flex items-center justify-between border-b pb-2">
+                      <Label className="text-sm font-bold text-primary/80">Common Terms & Conditions</Label>
+                      <Badge variant="outline" className="text-[10px] uppercase font-bold text-muted-foreground">Smart Selector</Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 pt-2">
+                      {COMMON_TERMS.map((term) => (
+                        <div key={term.id} className="flex items-start space-x-3 group animate-in fade-in slide-in-from-left-2 duration-300">
+                          <Checkbox 
+                            id={term.id} 
+                            checked={selectedTermIds.includes(term.id)}
+                            onCheckedChange={() => handleTermToggle(term.id)}
+                            className="mt-0.5"
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          <Label 
+                            htmlFor={term.id} 
+                            className="text-[11px] font-medium leading-relaxed cursor-pointer text-muted-foreground group-hover:text-foreground transition-colors"
+                          >
+                            {term.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Separator className="my-2 opacity-50" />
+
+                    <div className="space-y-3">
+                      <Label className="text-xs font-semibold text-primary/70 uppercase tracking-wider">Custom Terms</Label>
+                      <div className="flex gap-2">
+                        <Input 
+                          placeholder="e.g., Valid for Delhi customers only" 
+                          value={customTermInput}
+                          onChange={(e) => setCustomTermInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              addCustomTerm();
+                            }
+                          }}
+                          className="h-9 text-xs"
+                        />
+                        <Button 
+                          type="button" 
+                          size="sm" 
+                          variant="secondary" 
+                          className="h-9 px-3 border"
+                          onClick={addCustomTerm}
+                        >
+                          <Plus className="h-4 w-4 mr-1" /> Add
+                        </Button>
+                      </div>
+
+                      {customTerms.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {customTerms.map((term, index) => (
+                            <Badge key={index} variant="secondary" className="pl-3 pr-1 py-1 h-7 gap-2 text-[10px] animate-in zoom-in-95 duration-200">
+                              {term}
+                              <button 
+                                type="button" 
+                                onClick={() => removeCustomTerm(index)}
+                                className="rounded-full hover:bg-muted-foreground/20 p-0.5 transition-colors"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
                   <FormField
                     control={form.control}
                     name="termsCondition"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Terms & Conditions</FormLabel>
+                        <FormLabel className="text-sm font-semibold">Terms & Conditions Editor</FormLabel>
                         <FormControl>
                           <CKEditorComponent 
                             value={field.value || ""} 
                             onChange={field.onChange}
-                            placeholder="List the terms and conditions..."
+                            placeholder="Final review of the terms and conditions..."
                           />
                         </FormControl>
                         <FormMessage />
