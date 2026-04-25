@@ -65,22 +65,18 @@ export function formatCurrency(
 export function getImageUrl(url?: string | null): string | undefined {
   if (!url) return undefined;
 
-  // If URL already starts with http:// or https://, return as is
   if (url.startsWith("http://") || url.startsWith("https://")) {
     return url;
   }
 
-  // Otherwise, prefix with NEXT_PUBLIC_IMAGE_URL
-  const imageBaseUrl = process.env.NEXT_PUBLIC_API_URL || ""; // Actually backend URL usually
-
-  // Remove trailing slash from base URL if present
-  const baseUrl = imageBaseUrl.endsWith("/") ? imageBaseUrl.slice(0, -1) : imageBaseUrl;
-
-  // Remove leading slash from URL if present
   const imagePath = url.startsWith("/") ? url : `/${url}`;
 
-  // If NEXT_PUBLIC_IMAGE_URL is explicitly set, use it, else fallback to backend
-  const secondaryBase = process.env.NEXT_PUBLIC_IMAGE_URL || baseUrl;
+  // Prefer explicit image base URL; fall back to API URL with /api stripped
+  const rawBase =
+    process.env.NEXT_PUBLIC_IMAGE_URL ||
+    (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/api\/?$/, "");
 
-  return `${secondaryBase.endsWith("/") ? secondaryBase.slice(0, -1) : secondaryBase}${imagePath}`;
+  const baseUrl = rawBase.endsWith("/") ? rawBase.slice(0, -1) : rawBase;
+
+  return `${baseUrl}${imagePath}`;
 }

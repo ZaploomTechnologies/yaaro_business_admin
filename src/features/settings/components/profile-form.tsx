@@ -39,7 +39,7 @@ interface ProfileFormProps {
 
 export function ProfileForm({ initialData }: ProfileFormProps) {
   const [loading, setLoading] = useState(false);
-  const { user } = useAuthStore();
+  const { user, updateUser } = useAuthStore();
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -85,6 +85,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         ...values,
         phones: values.phones.map((p) => p.value),
       });
+      updateUser({ name: values.name, logo: values.logo });
       toast.success("Profile updated successfully");
     } catch (error: any) {
       toast.error(error.message || "Failed to update profile");
