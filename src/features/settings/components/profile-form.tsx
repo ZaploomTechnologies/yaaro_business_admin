@@ -314,7 +314,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                   </div>
                 ))}
               </div>
-            </div>
+            </div>  
 
             <div className="flex justify-start">
               <Button type="submit" disabled={loading}>
