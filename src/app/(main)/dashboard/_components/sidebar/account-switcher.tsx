@@ -74,18 +74,18 @@ export function AccountSwitcher() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
                 <BadgeCheck className="mr-2 size-4" />
                 Account Settings
               </DropdownMenuItem>
-              <DropdownMenuItem disabled>
+              {/* <DropdownMenuItem disabled>
                 <CreditCard className="mr-2 size-4" />
                 Billing (Coming Soon)
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell className="mr-2 size-4" />
                 Notifications
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>

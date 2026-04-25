@@ -37,14 +37,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-
             <SidebarMenuButton size="lg" asChild>
               <Link prefetch={false} href="/dashboard">
                 <div className="flex flex-col items-start gap-1">
-                  <div className="flex items-center">
-                    <Image src="/Yaaro-Icon.png" alt="Yaaro Icon" width={28} height={28} className="object-contain" />
-                    <Image src="/Yaaro-Logo.png" alt="Yaaro Logo" width={70} height={28} className="object-contain" />
-                  </div>
+                  <Image src="/Yaaro-Logo.png" alt="Yaaro Logo" width={70} height={28} className="object-contain" />
                   <span className="text-xs ps-2 font-medium text-muted-foreground">Business Admin</span>
                 </div>
               </Link>

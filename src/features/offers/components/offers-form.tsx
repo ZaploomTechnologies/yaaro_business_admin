@@ -14,17 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import dynamic from "next/dynamic";
-
-const CKEditorComponent = dynamic(
-  () => import("@/components/common/editor/CKEditor").then((mod) => mod.CKEditorComponent),
-  { 
-    ssr: false,
-    loading: () => <div className="h-[200px] w-full animate-pulse bg-muted rounded-md" />
-  }
-);
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Plus, X } from "lucide-react";
@@ -99,7 +89,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
           categoryId: "",
           images: [],
           redeemCode: "",
-          redeemedExpiry: 0,
+          redeemedExpiry: 90,
           termsCondition: "",
           offerType: "upto",
           whereToRedeem: "offline",
@@ -120,7 +110,6 @@ export function OffersForm({ initialData }: OffersFormProps) {
       } catch (error) {
         toast.error("Failed to load categories");
       } finally {
-        setCategories([]); // Fallback
         setLoadingCategories(false);
       }
     }
@@ -339,175 +328,94 @@ export function OffersForm({ initialData }: OffersFormProps) {
                 <h3 className="text-lg font-semibold tracking-tight text-foreground/90">Reward Info</h3>
               </div>
 
-              <div className="grid gap-8 md:grid-cols-2">
-                {/* Left Side: Redemption Details */}
-                <div className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="whereToRedeem"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Where to Redeem</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select where to redeem" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="online">Online</SelectItem>
-                            <SelectItem value="offline">Offline</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              <div className="space-y-8">
+                {/* Row 1: Redemption + Pricing */}
+                <div className="grid gap-8 md:grid-cols-2">
+                  {/* How to Redeem */}
+                  <div className="space-y-4 rounded-lg border bg-background p-4 shadow-sm">
+                    <div className="flex items-center gap-2 border-b pb-2">
+                      <div className="h-3 w-1 bg-primary rounded-full" />
+                      <Label className="text-sm font-bold text-primary/80">How to Redeem</Label>
+                    </div>
 
-                  <div className="grid grid-cols-2 gap-4 items-start">
                     <FormField
                       control={form.control}
-                      name="redeemCode"
-                      render={({ field }) => (
-                        <FormItem className={form.watch("whereToRedeem") === "offline" ? "opacity-60" : ""}>
-                          <FormLabel>
-                            Redeem Code
-                            {form.watch("whereToRedeem") === "online" && <span className="text-destructive ml-1">*</span>}
-                          </FormLabel>
-                          <FormControl>
-                            {form.watch("whereToRedeem") === "offline" ? (
-                              <div className="h-10 px-3 py-2 rounded-md border border-input bg-muted/50 text-xs flex items-center text-muted-foreground italic">
-                                Automatically generated unique code
-                              </div>
-                            ) : (
-                              <Input 
-                                placeholder="e.g. SAVE20" 
-                                {...field} 
-                                onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                                className="uppercase font-mono"
-                              />
-                            )}
-                          </FormControl>
-                          <FormMessage />
-                          {form.watch("whereToRedeem") === "offline" && (
-                            <FormDescription className="text-[10px]">
-                              Unique 8-char codes will be created for each customer.
-                            </FormDescription>
-                          )}
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="redeemedExpiry"
+                      name="whereToRedeem"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Expiry Days</FormLabel>
-                          <FormControl>
-                            <Input type="number" {...field} />
-                          </FormControl>
-                          <FormDescription>Days valid after redeem</FormDescription>
+                          <FormLabel>Where to Redeem</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select where to redeem" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="online">Online</SelectItem>
+                              <SelectItem value="offline">Offline</SelectItem>
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+
+                    <div className="grid grid-cols-2 gap-4 items-start">
+                      <FormField
+                        control={form.control}
+                        name="redeemCode"
+                        render={({ field }) => (
+                          <FormItem className={form.watch("whereToRedeem") === "offline" ? "opacity-60" : ""}>
+                            <FormLabel>
+                              Redeem Code
+                              {form.watch("whereToRedeem") === "online" && <span className="text-destructive ml-1">*</span>}
+                            </FormLabel>
+                            <FormControl>
+                              {form.watch("whereToRedeem") === "offline" ? (
+                                <div className="h-10 px-3 py-2 rounded-md border border-input bg-muted/50 text-xs flex items-center text-muted-foreground italic">
+                                  Automatically generated unique code
+                                </div>
+                              ) : (
+                                <Input
+                                  placeholder="e.g. SAVE20"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                                  className="uppercase font-mono"
+                                />
+                              )}
+                            </FormControl>
+                            <FormMessage />
+                            {form.watch("whereToRedeem") === "offline" && (
+                              <FormDescription className="text-[10px]">
+                                Unique 8-char codes will be created for each customer.
+                              </FormDescription>
+                            )}
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="redeemedExpiry"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Expiry Days</FormLabel>
+                            <FormControl>
+                              <Input type="number" {...field} />
+                            </FormControl>
+                            <FormDescription>Days valid after redeem</FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </div>
 
-
-                  {/* --- Smart Terms Selector UI --- */}
+                  {/* Offer Pricing */}
                   <div className="space-y-4 rounded-lg border bg-background p-4 shadow-sm">
-                    <div className="flex items-center justify-between border-b pb-2">
-                      <Label className="text-sm font-bold text-primary/80">Common Terms & Conditions</Label>
-                      <Badge variant="outline" className="text-[10px] uppercase font-bold text-muted-foreground">Smart Selector</Badge>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 pt-2">
-                      {COMMON_TERMS.map((term) => (
-                        <div key={term.id} className="flex items-start space-x-3 group animate-in fade-in slide-in-from-left-2 duration-300">
-                          <Checkbox 
-                            id={term.id} 
-                            checked={selectedTermIds.includes(term.id)}
-                            onCheckedChange={() => handleTermToggle(term.id)}
-                            className="mt-0.5"
-                          />
-                          <Label 
-                            htmlFor={term.id} 
-                            className="text-[11px] font-medium leading-relaxed cursor-pointer text-muted-foreground group-hover:text-foreground transition-colors"
-                          >
-                            {term.label}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-
-                    <Separator className="my-2 opacity-50" />
-
-                    <div className="space-y-3">
-                      <Label className="text-xs font-semibold text-primary/70 uppercase tracking-wider">Custom Terms</Label>
-                      <div className="flex gap-2">
-                        <Input 
-                          placeholder="e.g., Valid for Delhi customers only" 
-                          value={customTermInput}
-                          onChange={(e) => setCustomTermInput(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              addCustomTerm();
-                            }
-                          }}
-                          className="h-9 text-xs"
-                        />
-                        <Button 
-                          type="button" 
-                          size="sm" 
-                          variant="secondary" 
-                          className="h-9 px-3 border"
-                          onClick={addCustomTerm}
-                        >
-                          <Plus className="h-4 w-4 mr-1" /> Add
-                        </Button>
-                      </div>
-
-                      {customTerms.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {customTerms.map((term, index) => (
-                            <Badge key={index} variant="secondary" className="pl-3 pr-1 py-1 h-7 gap-2 text-[10px] animate-in zoom-in-95 duration-200">
-                              {term}
-                              <button 
-                                type="button" 
-                                onClick={() => removeCustomTerm(index)}
-                                className="rounded-full hover:bg-muted-foreground/20 p-0.5 transition-colors"
-                              >
-                                <X className="h-3.5 w-3.5" />
-                              </button>
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                  <div className="flex items-center gap-2 border-b pb-2">
+                    <div className="h-3 w-1 bg-primary rounded-full" />
+                    <Label className="text-sm font-bold text-primary/80">Offer Pricing</Label>
                   </div>
-
-                  <FormField
-                    control={form.control}
-                    name="termsCondition"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-semibold">Terms & Conditions Editor</FormLabel>
-                        <FormControl>
-                          <CKEditorComponent 
-                            value={field.value || ""} 
-                            onChange={field.onChange}
-                            placeholder="Final review of the terms and conditions..."
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Right Side: Pricing Logic */}
-                <div className="space-y-6 rounded-xl border bg-muted/30 p-6 shadow-inner">
                   <div className="space-y-4">
                     <FormField
                       control={form.control}
@@ -517,7 +425,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
                           <FormLabel>Offer Type</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
-                              <SelectTrigger className="bg-background">
+                              <SelectTrigger>
                                 <SelectValue placeholder="Select offer type" />
                               </SelectTrigger>
                             </FormControl>
@@ -541,7 +449,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
                              <FormItem>
                                <FormLabel>Min Price (₹)</FormLabel>
                                <FormControl>
-                                 <Input type="number" placeholder="0" className="bg-background" {...field} />
+                                 <Input type="number" placeholder="0" {...field} />
                                </FormControl>
                                <FormMessage />
                              </FormItem>
@@ -555,7 +463,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
                            <FormItem className={watchedOfferType !== "discount" ? "col-span-2" : ""}>
                              <FormLabel>Max Price (₹)</FormLabel>
                              <FormControl>
-                               <Input type="number" placeholder="0" className="bg-background" {...field} />
+                               <Input type="number" placeholder="0" {...field} />
                              </FormControl>
                              <FormMessage />
                            </FormItem>
@@ -571,7 +479,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
                           <FormItem>
                             <FormLabel>Discount (%)</FormLabel>
                             <FormControl>
-                              <Input type="number" placeholder="0" className="bg-background" {...field} />
+                              <Input type="number" placeholder="0" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -597,8 +505,99 @@ export function OffersForm({ initialData }: OffersFormProps) {
                       </p>
                     </div> */}
                   </div>
-                  
+                </div>
+              </div>
 
+                {/* Row 2: Smart Terms Selector + T&C Editor */}
+                <div className="grid gap-8 md:grid-cols-2 items-start">
+                  {/* Smart Terms Selector */}
+                  <div className="space-y-4 rounded-lg border bg-background p-4 shadow-sm">
+                    <div className="flex items-center justify-between border-b pb-2">
+                      <Label className="text-sm font-bold text-primary/80">Common Terms & Conditions</Label>
+                      <Badge variant="outline" className="text-[10px] uppercase font-bold text-muted-foreground">Smart Selector</Badge>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 pt-2">
+                      {COMMON_TERMS.map((term) => (
+                        <div key={term.id} className="flex items-start space-x-3 group animate-in fade-in slide-in-from-left-2 duration-300">
+                          <Checkbox
+                            id={term.id}
+                            checked={selectedTermIds.includes(term.id)}
+                            onCheckedChange={() => handleTermToggle(term.id)}
+                            className="mt-0.5"
+                          />
+                          <Label
+                            htmlFor={term.id}
+                            className="text-[11px] font-medium leading-relaxed cursor-pointer text-muted-foreground group-hover:text-foreground transition-colors"
+                          >
+                            {term.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Separator className="my-2 opacity-50" />
+
+                    <div className="space-y-3">
+                      <Label className="text-xs font-semibold text-primary/70 uppercase tracking-wider">Custom Terms</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="e.g., Valid for Delhi customers only"
+                          value={customTermInput}
+                          onChange={(e) => setCustomTermInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              addCustomTerm();
+                            }
+                          }}
+                          className="h-9 text-xs"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          className="h-9 px-3 border"
+                          onClick={addCustomTerm}
+                        >
+                          <Plus className="h-4 w-4 mr-1" /> Add
+                        </Button>
+                      </div>
+
+                      {customTerms.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {customTerms.map((term, index) => (
+                            <Badge key={index} variant="secondary" className="pl-3 pr-1 py-1 h-7 gap-2 text-[10px] animate-in zoom-in-95 duration-200">
+                              {term}
+                              <button
+                                type="button"
+                                onClick={() => removeCustomTerm(index)}
+                                className="rounded-full hover:bg-muted-foreground/20 p-0.5 transition-colors"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Terms & Conditions Preview */}
+                  <div className="space-y-4 rounded-lg border bg-background p-4 shadow-sm self-start">
+                    <div className="flex items-center gap-2 border-b pb-2">
+                      <div className="h-3 w-1 bg-primary rounded-full" />
+                      <Label className="text-sm font-bold text-primary/80">Terms & Conditions Preview</Label>
+                    </div>
+                    {form.watch("termsCondition") ? (
+                      <div
+                        className="prose prose-sm max-w-none text-sm text-muted-foreground [&_ul]:list-disc [&_ul]:pl-4 [&_li]:mb-1"
+                        dangerouslySetInnerHTML={{ __html: form.watch("termsCondition") || "" }}
+                      />
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">No terms selected yet. Use the selector on the left to add terms.</p>
+                    )}
+                  </div>
                 </div>
               </div>
 
