@@ -72,12 +72,7 @@ export class ApiClient {
       headers,
     };
 
-    console.log(`DEBUG: API Request - ${config.method || "GET"} ${url}`);
-    console.log("DEBUG: API Request - Auth header present:", !!headers.Authorization);
-
     const response = await fetch(url, config);
-
-    console.log(`DEBUG: API Response - ${response.status} ${response.statusText}`);
 
     if (response.status === 401 || response.status === 403) {
       if (typeof window !== "undefined") handleAuthFailure();
@@ -86,8 +81,6 @@ export class ApiClient {
 
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
-      const text = await response.text();
-      console.error("DEBUG: API Response is NOT JSON:", text.slice(0, 100));
       throw new Error(`Server returned non-JSON response (${response.status}): ${response.statusText}`);
     }
 

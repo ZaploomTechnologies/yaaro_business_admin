@@ -54,6 +54,20 @@ interface OffersFormProps {
 
 type OfferFormValues = z.infer<typeof formSchema>;
 
+function parseTermsFromHtml(html: string): { predefinedIds: string[]; customTerms: string[] } {
+  if (!html) return { predefinedIds: [], customTerms: [] };
+  const liMatches = html.match(/<li>(.*?)<\/li>/g) || [];
+  const labels = liMatches.map((li) => li.replace(/<\/?li>/g, "").trim());
+  const predefinedIds: string[] = [];
+  const customTermsList: string[] = [];
+  labels.forEach((label) => {
+    const found = COMMON_TERMS.find((t) => t.label === label);
+    if (found) predefinedIds.push(found.id);
+    else customTermsList.push(label);
+  });
+  return { predefinedIds, customTerms: customTermsList };
+}
+
 export function OffersForm({ initialData }: OffersFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -117,21 +131,22 @@ export function OffersForm({ initialData }: OffersFormProps) {
   }, []);
 
   // Smart Terms Selector State
-  const [selectedTermIds, setSelectedTermIds] = useState<string[]>(
-    isEdit ? [] : COMMON_TERMS.filter(t => t.defaultChecked).map(t => t.id)
-  );
-  const [customTerms, setCustomTerms] = useState<string[]>([]);
+  const [selectedTermIds, setSelectedTermIds] = useState<string[]>(() => {
+    if (isEdit && initialData?.termsCondition) {
+      return parseTermsFromHtml(initialData.termsCondition as string).predefinedIds;
+    }
+    return COMMON_TERMS.filter((t) => t.defaultChecked).map((t) => t.id);
+  });
+  const [customTerms, setCustomTerms] = useState<string[]>(() => {
+    if (isEdit && initialData?.termsCondition) {
+      return parseTermsFromHtml(initialData.termsCondition as string).customTerms;
+    }
+    return [];
+  });
   const [customTermInput, setCustomTermInput] = useState("");
-  const [isInitialSyncDone, setIsInitialSyncDone] = useState(false);
 
   // Sync terms to editor
   useEffect(() => {
-    // If editing, don't overwrite existing terms initially
-    if (isEdit && !isInitialSyncDone) {
-      setIsInitialSyncDone(true);
-      return;
-    }
-
     const selectedPredefined = COMMON_TERMS
       .filter((t) => selectedTermIds.includes(t.id))
       .map((t) => t.label);
@@ -141,11 +156,10 @@ export function OffersForm({ initialData }: OffersFormProps) {
     if (allTerms.length > 0) {
       const html = `<ul>${allTerms.map((t) => `<li>${t}</li>`).join("")}</ul>`;
       form.setValue("termsCondition", html);
-    } else if (!isEdit || isInitialSyncDone) {
-      // Only clear if we've already started syncing or it's a new offer
+    } else {
       form.setValue("termsCondition", "");
     }
-  }, [selectedTermIds, customTerms, form, isEdit, isInitialSyncDone]);
+  }, [selectedTermIds, customTerms, form]);
 
   const handleTermToggle = (id: string) => {
     setSelectedTermIds((prev) =>
