@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { unstable_rethrow } from "next/navigation";
 import PageContainer from "@/components/layout/page-container";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileForm } from "@/features/settings/components/profile-form";
@@ -27,6 +28,7 @@ export default async function SettingsPage() {
       profileData = res.data as ProfilePayload;
     }
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Failed to fetch profile data on server:", error);
   }
 
