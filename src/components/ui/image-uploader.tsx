@@ -1,18 +1,23 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
-import { IconPhoto, IconX, IconUpload, IconCheck } from '@tabler/icons-react';
-import Cropper from 'react-easy-crop';
+import { IconPhoto, IconX, IconUpload } from '@tabler/icons-react';
 import type { Area } from 'react-easy-crop';
 import { toast } from 'sonner';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { ImageCropModal } from '@/components/ui/image-crop-modal';
 import { Label } from '@/components/ui/label';
 import { apiClient } from '@/lib/api-client';
 import { getCroppedImg } from '@/lib/crop-image';
 import { cn, getImageUrl } from '@/lib/utils';
+
+const ASPECT_RATIOS = [
+    { label: '1:1', value: 1 },
+    // { label: '4:3', value: 4 / 3 },
+];
 
 interface ImageUploaderProps {
     value?: string;
@@ -37,21 +42,12 @@ export function ImageUploader({
 }: ImageUploaderProps) {
     const [uploading, setUploading] = useState(false);
     const [preview, setPreview] = useState<string | null>(value || null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    // Crop modal state
     const [cropSrc, setCropSrc] = useState<string | null>(null);
-    const [crop, setCrop] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         setPreview(value || null);
     }, [value]);
-
-    const onCropComplete = useCallback((_: Area, pixels: Area) => {
-        setCroppedAreaPixels(pixels);
-    }, []);
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -62,34 +58,29 @@ export function ImageUploader({
             return;
         }
 
-        const fileSizeMB = file.size / (1024 * 1024);
-        if (fileSizeMB > maxSize) {
+        if (file.size / (1024 * 1024) > maxSize) {
             toast.error(`Image size must be less than ${maxSize}MB`);
             return;
         }
 
         const reader = new FileReader();
-        reader.onloadend = () => {
-            setCropSrc(reader.result as string);
-            setCrop({ x: 0, y: 0 });
-            setZoom(1);
-        };
+        reader.onloadend = () => setCropSrc(reader.result as string);
         reader.readAsDataURL(file);
 
-        // Reset input so same file can be re-selected
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
-    const handleCropConfirm = async () => {
-        if (!cropSrc || !croppedAreaPixels) return;
+    const handleCropConfirm = async (croppedAreaPixels: Area, aspectRatio: number) => {
+        if (!cropSrc) return;
 
-        setUploading(true);
         setCropSrc(null);
+        setUploading(true);
 
         try {
-            const croppedFile = await getCroppedImg(cropSrc, croppedAreaPixels, 124, 124, 0.82);
+            const outputWidth = 124;
+            const outputHeight = Math.round(outputWidth / aspectRatio);
+            const croppedFile = await getCroppedImg(cropSrc, croppedAreaPixels, outputWidth, outputHeight, 0.82);
 
-            // Show local preview immediately
             const localPreview = URL.createObjectURL(croppedFile);
             setPreview(localPreview);
 
@@ -107,11 +98,9 @@ export function ImageUploader({
                 }
             }
 
-            if (tempUrl) {
-                onChange(tempUrl);
-                setPreview(tempUrl);
-                toast.success('Image uploaded successfully');
-            }
+            onChange(tempUrl);
+            setPreview(tempUrl);
+            toast.success('Image uploaded successfully');
         } catch (error: any) {
             console.error('Upload Error:', error);
             toast.error(error.message || 'Failed to upload image');
@@ -119,10 +108,6 @@ export function ImageUploader({
         } finally {
             setUploading(false);
         }
-    };
-
-    const handleCropCancel = () => {
-        setCropSrc(null);
     };
 
     const handleRemove = () => {
@@ -133,64 +118,16 @@ export function ImageUploader({
 
     return (
         <>
-            {/* Crop Modal */}
             {cropSrc && (
-                <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/70'>
-                    <div className='flex w-[90vw] max-w-md flex-col gap-4 rounded-xl bg-background p-6 shadow-xl'>
-                        <div className='flex items-center justify-between'>
-                            <h2 className='text-base font-semibold'>Crop Image</h2>
-                        </div>
-
-                        <div className='relative h-72 w-full overflow-hidden rounded-lg bg-black'>
-                            <Cropper
-                                image={cropSrc}
-                                crop={crop}
-                                zoom={zoom}
-                                aspect={1}
-                                cropShape='rect'
-                                showGrid={true}
-                                onCropChange={setCrop}
-                                onZoomChange={setZoom}
-                                onCropComplete={onCropComplete}
-                                style={{
-                                    cropAreaStyle: {
-                                        border: '2px solid white',
-                                        boxShadow: '0 0 0 9999px rgba(0,0,0,0.55)',
-                                        color: 'white',
-                                    },
-                                }}
-                            />
-                        </div>
-
-                        {/* Zoom slider */}
-                        <div className='flex items-center gap-3'>
-                            <span className='text-xs text-muted-foreground'>Zoom</span>
-                            <input
-                                type='range'
-                                min={1}
-                                max={3}
-                                step={0.01}
-                                value={zoom}
-                                onChange={(e) => setZoom(Number(e.target.value))}
-                                className='h-1.5 w-full cursor-pointer accent-primary'
-                            />
-                        </div>
-
-                        <div className='flex justify-end gap-2'>
-                            <Button type='button' variant='outline' onClick={handleCropCancel}>
-                                <IconX className='mr-1.5 h-4 w-4' />
-                                Cancel
-                            </Button>
-                            <Button type='button' onClick={handleCropConfirm}>
-                                <IconCheck className='mr-1.5 h-4 w-4' />
-                                Crop & Upload
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+                <ImageCropModal
+                    src={cropSrc}
+                    aspectRatios={ASPECT_RATIOS}
+                    defaultAspect={1}
+                    onConfirm={handleCropConfirm}
+                    onCancel={() => setCropSrc(null)}
+                />
             )}
 
-            {/* Uploader UI */}
             <div className={cn('space-y-2', className)}>
                 {label && (
                     <Label htmlFor='image-upload'>

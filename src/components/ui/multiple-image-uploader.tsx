@@ -1,17 +1,22 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef } from 'react';
 
 import { IconPhoto, IconX, IconPlus, IconCheck } from '@tabler/icons-react';
-import Cropper from 'react-easy-crop';
 import type { Area } from 'react-easy-crop';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
+import { ImageCropModal } from '@/components/ui/image-crop-modal';
 import { Label } from '@/components/ui/label';
 import { apiClient } from '@/lib/api-client';
 import { getCroppedImg } from '@/lib/crop-image';
 import { cn, getImageUrl } from '@/lib/utils';
+
+const ASPECT_RATIOS = [
+    { label: '16:9', value: 16 / 9 },
+    { label: '4:3', value: 4 / 3 },
+];
 
 interface CropQueueItem {
     src: string;
@@ -42,17 +47,8 @@ export function MultipleImageUploader({
     className
 }: MultipleImageUploaderProps) {
     const [uploading, setUploading] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    // Crop queue state
     const [cropQueue, setCropQueue] = useState<CropQueueItem[]>([]);
-    const [crop, setCrop] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
-
-    const onCropComplete = useCallback((_: Area, pixels: Area) => {
-        setCroppedAreaPixels(pixels);
-    }, []);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -68,16 +64,13 @@ export function MultipleImageUploader({
             return;
         }
 
-        const fileSizeMB = file.size / (1024 * 1024);
-        if (fileSizeMB > maxSize) {
+        if (file.size / (1024 * 1024) > maxSize) {
             toast.error(`Image exceeds ${maxSize}MB limit`);
             return;
         }
 
         const reader = new FileReader();
         reader.onloadend = () => {
-            setCrop({ x: 0, y: 0 });
-            setZoom(1);
             setCropQueue([{ src: reader.result as string, fileName: file.name }]);
         };
         reader.readAsDataURL(file);
@@ -85,14 +78,17 @@ export function MultipleImageUploader({
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
-    const handleCropConfirm = async () => {
-        if (!cropQueue[0] || !croppedAreaPixels) return;
+    const handleCropConfirm = async (croppedAreaPixels: Area, aspectRatio: number) => {
+        if (!cropQueue[0]) return;
 
         const current = cropQueue[0];
+        setCropQueue([]);
         setUploading(true);
 
         try {
-            const croppedFile = await getCroppedImg(current.src, croppedAreaPixels, 480, 270, 0.6);
+            const outputWidth = 480;
+            const outputHeight = Math.round(outputWidth / aspectRatio);
+            const croppedFile = await getCroppedImg(current.src, croppedAreaPixels, outputWidth, outputHeight, 0.6);
 
             let tempUrl = '';
             if (onUpload) {
@@ -109,19 +105,13 @@ export function MultipleImageUploader({
             }
 
             onChange([...value, tempUrl]);
-            setCropQueue([]);
             toast.success('Image uploaded successfully');
         } catch (error: any) {
             console.error('Upload Error:', error);
             toast.error(error.message || `Failed to upload ${current.fileName}`);
-            setCropQueue([]);
         } finally {
             setUploading(false);
         }
-    };
-
-    const handleCropSkip = () => {
-        setCropQueue([]);
     };
 
     const handleRemove = (index: number) => {
@@ -134,81 +124,17 @@ export function MultipleImageUploader({
 
     return (
         <>
-            {/* Crop Modal */}
             {currentCrop && (
-                <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/70'>
-                    <div className='flex w-[90vw] max-w-lg flex-col gap-4 rounded-xl bg-background p-6 shadow-xl'>
-                        <div className='flex items-center justify-between'>
-                            <div>
-                                <h2 className='text-base font-semibold'>Crop Image</h2>
-                                <p className='text-xs text-muted-foreground truncate max-w-60'>
-                                    {currentCrop.fileName}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className='relative h-72 w-full overflow-hidden rounded-lg bg-black'>
-                            <Cropper
-                                image={currentCrop.src}
-                                crop={crop}
-                                zoom={zoom}
-                                aspect={16 / 9}
-                                cropShape='rect'
-                                showGrid={true}
-                                onCropChange={setCrop}
-                                onZoomChange={setZoom}
-                                onCropComplete={onCropComplete}
-                                style={{
-                                    cropAreaStyle: {
-                                        border: '2px solid white',
-                                        boxShadow: '0 0 0 9999px rgba(0,0,0,0.55)',
-                                    },
-                                }}
-                            />
-                        </div>
-
-                        {/* Zoom slider */}
-                        <div className='flex items-center gap-3'>
-                            <span className='text-xs text-muted-foreground'>Zoom</span>
-                            <input
-                                type='range'
-                                min={1}
-                                max={3}
-                                step={0.01}
-                                value={zoom}
-                                onChange={(e) => setZoom(Number(e.target.value))}
-                                className='h-1.5 w-full cursor-pointer accent-primary'
-                            />
-                        </div>
-
-                        <div className='flex justify-between gap-2'>
-                            <Button
-                                type='button'
-                                variant='ghost'
-                                onClick={handleCropSkip}
-                                disabled={uploading}
-                                className='text-muted-foreground'>
-                                Skip
-                            </Button>
-                            <Button type='button' onClick={handleCropConfirm} disabled={uploading}>
-                                {uploading ? (
-                                    <>
-                                        <span className='mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent' />
-                                        Uploading...
-                                    </>
-                                ) : (
-                                    <>
-                                        <IconCheck className='mr-1.5 h-4 w-4' />
-                                        Crop & Upload
-                                    </>
-                                )}
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+                <ImageCropModal
+                    src={currentCrop.src}
+                    fileName={currentCrop.fileName}
+                    aspectRatios={ASPECT_RATIOS}
+                    defaultAspect={16 / 9}
+                    onConfirm={handleCropConfirm}
+                    onCancel={() => setCropQueue([])}
+                />
             )}
 
-            {/* Uploader UI */}
             <div className={cn('space-y-3', className)}>
                 {label && (
                     <Label>
