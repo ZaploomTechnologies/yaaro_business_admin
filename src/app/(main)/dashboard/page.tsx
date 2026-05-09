@@ -43,7 +43,7 @@ export default async function Page() {
 
   return (
     <PageContainer scrollable pageTitle="Business Dashboard" pageDescription="Welcome to your business management portal.">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Offers</CardTitle>
@@ -84,20 +84,20 @@ export default async function Page() {
         </Card>
       </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+      <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-7">
+        <Card className="min-w-0 lg:col-span-4">
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
             <CardDescription>Commonly used business operations</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-4">
-            <Button asChild className="h-24 w-40 flex-col gap-2">
+            <Button asChild className="h-20 w-full flex-col gap-2 sm:h-24 sm:w-40">
               <Link href="/dashboard/offers/new">
                 <Plus className="h-6 w-6" />
                 <span>New Offer</span>
               </Link>
             </Button>
-            <Button asChild variant="outline" className="h-24 w-40 flex-col gap-2">
+            <Button asChild variant="outline" className="h-20 w-full flex-col gap-2 sm:h-24 sm:w-40">
               <Link href="/dashboard/offers">
                 <Gift className="h-6 w-6" />
                 <span>My Offers</span>
@@ -106,7 +106,7 @@ export default async function Page() {
           </CardContent>
         </Card>
 
-        <Card className="col-span-3">
+        <Card className="min-w-0 lg:col-span-3">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>Your latest offers</CardDescription>

@@ -156,7 +156,7 @@ export function ApplyCodeForm() {
   };
 
   return (
-    <div className="space-y-6 max-w-lg">
+    <div className="w-full space-y-6 sm:max-w-lg">
       <div className="bg-muted/50 border rounded-lg p-4 text-sm text-muted-foreground flex gap-3">
         <AlertCircle className="size-5 text-primary shrink-0" />
         <p>

@@ -117,7 +117,9 @@ export function ServerDataTable<TData extends { id?: string; _id?: string; delet
     if (currentPageSize !== limit) {
       table.setPageSize(limit);
     }
-    searchInputRef.current?.focus();
+    if (!window.matchMedia("(pointer: coarse)").matches) {
+      searchInputRef.current?.focus();
+    }
   }, [limit, table]);
 
   const totalPages = Math.ceil(totalRows / limit);

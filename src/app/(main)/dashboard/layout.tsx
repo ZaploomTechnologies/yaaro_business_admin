@@ -47,7 +47,7 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
             </div>
           </div>
         </header>
-        <div className="h-full min-w-0 p-3 pb-6 sm:p-4 md:p-6">{children}</div>
+        <div className="h-full min-w-0 overflow-x-hidden p-3 pb-6 sm:p-4 md:p-6">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

@@ -32,7 +32,7 @@ export default function PageContainer({
   breadcrumb,
 }: PageContainerProps) {
   return (
-    <div className={cn("w-full max-w-full space-y-3 sm:space-y-4", scrollable && "overflow-auto", className)}>
+    <div className={cn("w-full max-w-full space-y-3 sm:space-y-4", scrollable && "overflow-x-hidden overflow-y-auto", className)}>
       {breadcrumb && (
         <Breadcrumb>
           <BreadcrumbList>

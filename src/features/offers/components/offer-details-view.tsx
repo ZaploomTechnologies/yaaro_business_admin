@@ -50,7 +50,7 @@ export default function OfferDetailsView({ offer }: OfferDetailsViewProps) {
   return (
     <div className="space-y-6">
       {/* Stats Section */}
-      <div className={`grid gap-4 ${stats.length === 4 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+      <div className={`grid grid-cols-2 gap-4 ${stats.length === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
         {stats.map((stat) => (
           <Card key={stat.title} className="overflow-hidden border-none shadow-sm transition-all hover:shadow-md">
             <div className={`h-1 ${stat.color.replace('text', 'bg')}`} />
@@ -70,14 +70,14 @@ export default function OfferDetailsView({ offer }: OfferDetailsViewProps) {
         ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left Column: Details */}
         <div className="md:col-span-2 space-y-6">
           <Card className="border-none shadow-sm">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <CardTitle>Basic Information</CardTitle>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {offer.isPremium && <Badge variant="default">Premium</Badge>}
                   {offer.isFeatured && <Badge variant="secondary">Featured</Badge>}
                   {offer.isTrending && <Badge variant="outline">Trending</Badge>}
@@ -95,7 +95,7 @@ export default function OfferDetailsView({ offer }: OfferDetailsViewProps) {
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap">{offer.description}</p>
               </div>
               <Separator />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <h4 className="text-sm font-semibold mb-1">Offer Type</h4>
                   <Badge variant="secondary" className="capitalize">{offer.offerType}</Badge>

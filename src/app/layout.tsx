@@ -40,7 +40,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         {/* Applies theme and layout preferences on load to avoid flicker and unnecessary server rerenders. */}
         <ThemeBootScript />
       </head>
-      <body className={`${inter.className} min-h-screen antialiased`} suppressHydrationWarning>
+      <body className={`${inter.className} min-h-screen overflow-x-hidden antialiased`} suppressHydrationWarning>
         <PreferencesStoreProvider
           themeMode={theme_mode}
           themePreset={theme_preset}

@@ -249,7 +249,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
                 <h3 className="text-lg font-semibold tracking-tight text-foreground/90">Basic Info</h3>
               </div>
               
-              <div className="grid gap-8 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                 <div className="space-y-6">
                   <FormField
                     control={form.control}
@@ -344,7 +344,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
 
               <div className="space-y-8">
                 {/* Row 1: Redemption + Pricing */}
-                <div className="grid gap-8 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                   {/* How to Redeem */}
                   <div className="space-y-4 rounded-lg border bg-background p-4 shadow-sm">
                     <div className="flex items-center gap-2 border-b pb-2">
@@ -374,7 +374,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
                       )}
                     />
 
-                    <div className="grid grid-cols-2 gap-4 items-start">
+                    <div className="grid grid-cols-1 gap-4 items-start sm:grid-cols-2">
                       <FormField
                         control={form.control}
                         name="redeemCode"
@@ -454,7 +454,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
                       )}
                     />
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                        {watchedOfferType === "discount" && (
                          <FormField
                            control={form.control}
@@ -523,7 +523,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
               </div>
 
                 {/* Row 2: Smart Terms Selector + T&C Editor */}
-                <div className="grid gap-8 md:grid-cols-2 items-start">
+                <div className="grid grid-cols-1 gap-8 items-start md:grid-cols-2">
                   {/* Smart Terms Selector */}
                   <div className="space-y-4 rounded-lg border bg-background p-4 shadow-sm">
                     <div className="flex items-center justify-between border-b pb-2">

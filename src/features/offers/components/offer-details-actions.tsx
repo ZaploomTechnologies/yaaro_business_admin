@@ -67,35 +67,36 @@ export default function OfferDetailsActions({ offer }: OfferDetailsActionsProps)
 
   return (
     <>
-      <div className="flex items-center gap-2">
-        {showEditDelete && (
-          <>
-            <Link
-              href={`/dashboard/offers/${id}`}
-              className={cn(buttonVariants({ variant: "outline" }), "h-9")}
-            >
-              <Edit className="mr-2 h-4 w-4" /> Edit Offer
-            </Link>
-            <Button
-              variant="destructive"
-              className="h-9"
-              onClick={() => setShowDeleteDialog(true)}
-            >
-              <Trash className="mr-2 h-4 w-4" /> Delete
-            </Button>
-          </>
-        )}
-        {showInactive && (
-          <Button
-            variant="outline"
-            className="h-9"
-            onClick={handleInactivate}
-            disabled={isUpdating}
+      {showEditDelete && (
+        <>
+          <Link
+            href={`/dashboard/offers/${id}`}
+            className={cn(buttonVariants({ variant: "outline" }), "h-9 gap-2")}
           >
-            <PowerOff className="mr-2 h-4 w-4" /> Inactivate
+            <Edit className="h-4 w-4" />
+            <span>Edit Offer</span>
+          </Link>
+          <Button
+            variant="destructive"
+            className="h-9 gap-2"
+            onClick={() => setShowDeleteDialog(true)}
+          >
+            <Trash className="h-4 w-4" />
+            <span>Delete</span>
           </Button>
-        )}
-      </div>
+        </>
+      )}
+      {showInactive && (
+        <Button
+          variant="outline"
+          className="h-9 gap-2"
+          onClick={handleInactivate}
+          disabled={isUpdating}
+        >
+          <PowerOff className="h-4 w-4" />
+          <span>Inactivate</span>
+        </Button>
+      )}
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>

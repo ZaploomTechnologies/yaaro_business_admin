@@ -274,7 +274,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                       <Trash2 className="h-4 w-4" />
                     </Button>
                     
-                    <div className="grid gap-6 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       <FormField
                         control={form.control}
                         name={`locations.${index}.address`}
