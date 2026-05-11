@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -13,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { settingsApi } from "../api/settings-api";
 
 const loginSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Please enter a valid email address"),
   currentPassword: z.string().min(1, "Current password is required"),
   newPassword: z.string().min(6, "New password must be at least 6 characters").optional().or(z.literal("")),
   confirmPassword: z.string().optional().or(z.literal("")),
@@ -28,16 +29,19 @@ const loginSchema = z.object({
 });
 
 interface LoginSettingsFormProps {
-  initialUsername: string;
+  initialEmail: string;
 }
 
-export function LoginSettingsForm({ initialUsername }: LoginSettingsFormProps) {
+export function LoginSettingsForm({ initialEmail }: LoginSettingsFormProps) {
   const [loading, setLoading] = useState(false);
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: initialUsername,
+      email: initialEmail,
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
@@ -67,7 +71,7 @@ export function LoginSettingsForm({ initialUsername }: LoginSettingsFormProps) {
       <CardHeader className="px-0 pt-0">
         <CardTitle>Login Settings</CardTitle>
         <CardDescription>
-          Change your username and password. You must provide your current password to save changes.
+          Change your email and password. You must provide your current password to save changes.
         </CardDescription>
       </CardHeader>
       <CardContent className="px-0">
@@ -75,12 +79,12 @@ export function LoginSettingsForm({ initialUsername }: LoginSettingsFormProps) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-md">
             <FormField
               control={form.control}
-              name="username"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter username" {...field} />
+                    <Input type="email" placeholder="you@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -94,7 +98,22 @@ export function LoginSettingsForm({ initialUsername }: LoginSettingsFormProps) {
                 <FormItem>
                   <FormLabel>Current Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <div className="relative">
+                      <Input
+                        type={showCurrent ? "text" : "password"}
+                        placeholder="••••••••"
+                        className="pr-10"
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrent((v) => !v)}
+                        className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+                        tabIndex={-1}
+                      >
+                        {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormDescription>Required to authorize any changes.</FormDescription>
                   <FormMessage />
@@ -111,7 +130,22 @@ export function LoginSettingsForm({ initialUsername }: LoginSettingsFormProps) {
                 <FormItem>
                   <FormLabel>New Password (Optional)</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <div className="relative">
+                      <Input
+                        type={showNew ? "text" : "password"}
+                        placeholder="••••••••"
+                        className="pr-10"
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNew((v) => !v)}
+                        className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+                        tabIndex={-1}
+                      >
+                        {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormDescription>Leave blank to keep current password.</FormDescription>
                   <FormMessage />
@@ -126,7 +160,22 @@ export function LoginSettingsForm({ initialUsername }: LoginSettingsFormProps) {
                 <FormItem>
                   <FormLabel>Confirm New Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <div className="relative">
+                      <Input
+                        type={showConfirm ? "text" : "password"}
+                        placeholder="••••••••"
+                        className="pr-10"
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirm((v) => !v)}
+                        className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+                        tabIndex={-1}
+                      >
+                        {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

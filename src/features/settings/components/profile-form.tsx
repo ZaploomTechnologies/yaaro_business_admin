@@ -19,6 +19,7 @@ import { useAuthStore } from "@/stores/auth-store";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Must be a valid email").or(z.literal("")).optional(),
   website: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
   logo: z.string(),
   about: z.string(),
@@ -45,6 +46,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       ...initialData,
+      email: initialData.email || "",
       logo: initialData.logo || user?.logo || "",
     },
   });
@@ -55,6 +57,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         const data = res.data as any;
         form.reset({
           name: data.name || initialData.name,
+          email: data.email || initialData.email || "",
           website: data.website || initialData.website,
           logo: data.logo || user?.logo || initialData.logo,
           about: data.about || initialData.about,
@@ -116,6 +119,21 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                       <FormControl>
                         <Input placeholder="Enter business name" className="bg-background" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="you@example.com" className="bg-background" {...field} />
+                      </FormControl>
+                      <FormDescription>Primary contact email for your business.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

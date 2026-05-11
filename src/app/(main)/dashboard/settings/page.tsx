@@ -14,7 +14,7 @@ type ProfilePayload = {
   name?: string;
   website?: string;
   logo?: string;
-  username?: string;
+  email?: string;
   about?: string;
   locations?: { address?: string; googleMapLink?: string }[];
   phones?: string[];
@@ -34,6 +34,7 @@ export default async function SettingsPage() {
 
   const profileInitial = {
     name: profileData.name ?? "",
+    email: profileData.email ?? "",
     website: profileData.website ?? "",
     logo: profileData.logo ?? "",
     about: profileData.about ?? "",
@@ -66,7 +67,7 @@ export default async function SettingsPage() {
           
           <TabsContent value="login">
             <Suspense fallback={<div>Loading login settings...</div>}>
-              <LoginSettingsForm initialUsername={profileData.username ?? ""} />
+              <LoginSettingsForm initialEmail={profileData.email ?? ""} />
             </Suspense>
           </TabsContent>
         </Tabs>
