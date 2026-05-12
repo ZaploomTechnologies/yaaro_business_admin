@@ -11,5 +11,5 @@ export const APP_CONFIG = {
     description:
       "Yaaro Admin Dashboard - Built with Next.js 16, Tailwind CSS v4, and shadcn/ui. Admin panel for managing exercises, equipment, users, and more.",
   },
-  POINTS_PER_RS: 10,
+  POINTS_PER_RS: 3,
 };

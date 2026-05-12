@@ -281,7 +281,7 @@ export function OffersForm({ initialData }: OffersFormProps) {
                               <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Select a category"} />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent position="popper" className="max-h-52! overflow-y-auto">
                             {categories.map((cat) => (
                               <SelectItem key={cat._id} value={cat._id}>
                                 {cat.name}
