@@ -99,6 +99,7 @@ export function RegisterForm() {
                 value={logo}
                 onChange={setLogo}
                 onUpload={handleUpload}
+                maxSize={2}
                 className="w-full"
               />
             </div>
