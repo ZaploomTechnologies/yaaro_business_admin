@@ -68,13 +68,13 @@ export function LoginSettingsForm({ initialEmail }: LoginSettingsFormProps) {
 
   return (
     <Card className="border-none shadow-none">
-      <CardHeader className="px-0 pt-0">
+      <CardHeader className="pt-0">
         <CardTitle>Login Settings</CardTitle>
         <CardDescription>
           Change your email and password. You must provide your current password to save changes.
         </CardDescription>
       </CardHeader>
-      <CardContent className="px-0">
+      <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-md">
             <FormField

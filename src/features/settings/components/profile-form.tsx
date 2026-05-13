@@ -84,11 +84,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   async function onSubmit(values: ProfileFormValues) {
     setLoading(true);
     try {
-      await settingsApi.updateProfile({
+      const res = await settingsApi.updateProfile({
         ...values,
         phones: values.phones.map((p) => p.value),
       });
-      updateUser({ name: values.name, logo: values.logo });
+      const savedLogo = (res.data as any)?.logo ?? values.logo;
+      updateUser({ name: values.name, logo: savedLogo });
       toast.success("Profile updated successfully");
     } catch (error: any) {
       toast.error(error.message || "Failed to update profile");
@@ -99,13 +100,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
   return (
     <Card className="border-none shadow-none">
-      <CardHeader className="px-0 pt-0">
+      <CardHeader className="pt-0">
         <CardTitle>Business Profile</CardTitle>
         <CardDescription>
           Update your business information visible to users.
         </CardDescription>
       </CardHeader>
-      <CardContent className="px-0">
+      <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
