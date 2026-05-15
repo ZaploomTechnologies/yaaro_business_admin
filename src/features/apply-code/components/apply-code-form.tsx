@@ -160,7 +160,7 @@ export function ApplyCodeForm() {
       <div className="bg-muted/50 border rounded-lg p-4 text-sm text-muted-foreground flex gap-3">
         <AlertCircle className="size-5 text-primary shrink-0" />
         <p>
-          Enter the unique code shown on the customer's mobile app to redeem their offer. 
+          Enter the unique code shown on the customer's mobile app to redeem their offer.
           Online-only offers cannot be redeemed here.
         </p>
       </div>
@@ -170,9 +170,9 @@ export function ApplyCodeForm() {
           <Input
             placeholder="Enter unique code (e.g. AB3XYZ1Q)"
             value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            onChange={(e) => setCode(e.target.value)}
             disabled={loading}
-            className="font-mono uppercase h-11 pr-10"
+            className="font-mono h-11 pr-10"
           />
         </div>
 

@@ -36,7 +36,7 @@ export interface ApplyCodeResult {
 
 export const applyCodeApi = {
   apply: async (redeemCode: string): Promise<{ success: boolean; data: ApplyCodeResult; message?: string }> => {
-    const response = await apiClient.post<ApplyCodeResult>("/business/apply-code", {
+    const response = await apiClient.post<ApplyCodeResult>("/business/applyCode", {
       redeemCode,
     });
     return response as { success: boolean; data: ApplyCodeResult; message?: string };
